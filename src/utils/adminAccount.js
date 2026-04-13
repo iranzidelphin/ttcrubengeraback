@@ -3,7 +3,7 @@ import { User } from '../models/User.js';
 
 export const SYSTEM_ADMIN_USERNAME = 'ttcradmin';
 export const SYSTEM_ADMIN_PASSWORD = 'ttcr123admin';
-export const SYSTEM_ADMIN_EMAIL = 'ttcradmin@ttcrubengera.local';
+export const SYSTEM_ADMIN_EMAIL = 'ttcradmin@gmail.com';
 
 export async function ensureSystemAdmin() {
   const hashedPassword = await bcrypt.hash(SYSTEM_ADMIN_PASSWORD, 10);

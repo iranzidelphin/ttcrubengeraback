@@ -9,14 +9,21 @@ function normalizeRole(role) {
   return allowedRoles.includes(role) ? role : 'student';
 }
 
+function buildUsernameFromEmail(email) {
+  return email
+    .split('@')[0]
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '') || 'user';
+}
+
 export async function registerUser(req, res) {
   try {
-    const { username, firstName, lastName = '', email, password, role } = req.body;
+    const { firstName, lastName = '', email, password, role } = req.body;
 
-    if (!username || !firstName || !email || !password) {
+    if (!firstName || !email || !password) {
       return res.status(400).json({
         success: false,
-        error: 'Username, first name, email, and password are required.',
+        error: 'First name, email, and password are required.',
       });
     }
 
@@ -27,25 +34,23 @@ export async function registerUser(req, res) {
       });
     }
 
-    const normalizedUsername = username.toLowerCase().trim();
     const normalizedEmail = email.toLowerCase().trim();
+    const baseUsername = buildUsernameFromEmail(normalizedEmail);
+    let normalizedUsername = baseUsername;
+    let suffix = 1;
 
-    if (normalizedUsername === 'ttcradmin') {
-      return res.status(403).json({
+    const existingEmail = await User.findOne({ email: normalizedEmail });
+
+    if (existingEmail) {
+      return res.status(409).json({
         success: false,
-        error: 'This username is reserved.',
+        error: 'An account with this email already exists.',
       });
     }
 
-    const existingUser = await User.findOne({
-      $or: [{ email: normalizedEmail }, { username: normalizedUsername }],
-    });
-
-    if (existingUser) {
-      return res.status(409).json({
-        success: false,
-        error: 'An account with this email or username already exists.',
-      });
+    while (await User.findOne({ username: normalizedUsername })) {
+      normalizedUsername = `${baseUsername}${suffix}`;
+      suffix += 1;
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -80,14 +85,12 @@ export async function loginUser(req, res) {
     if (!email || !password) {
       return res.status(400).json({
         success: false,
-        error: 'Username or email and password are required.',
+        error: 'Email and password are required.',
       });
     }
 
     const identifier = email.toLowerCase().trim();
-    const user = await User.findOne({
-      $or: [{ email: identifier }, { username: identifier }],
-    });
+    const user = await User.findOne({ email: identifier });
 
     if (!user) {
       return res.status(401).json({
