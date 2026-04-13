@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import app from './app.js';
 import { connectDatabase } from './config/db.js';
 import { createSocketServer } from './socket.js';
+import { ensureSystemAdmin, ensureUsernames } from './utils/adminAccount.js';
 
 dotenv.config();
 
@@ -26,6 +27,8 @@ function handleServerError(error) {
 async function startServer() {
   try {
     await connectDatabase();
+    await ensureUsernames();
+    await ensureSystemAdmin();
 
     server.on('error', handleServerError);
     server.listen(port, () => {

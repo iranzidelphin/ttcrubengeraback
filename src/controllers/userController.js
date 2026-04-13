@@ -1,5 +1,6 @@
 import { User } from '../models/User.js';
 import { buildUserResponse } from '../utils/userResponse.js';
+import { isSystemAdminAccount } from '../utils/adminAccount.js';
 
 const allowedRoles = ['student', 'teacher', 'parent', 'admin'];
 
@@ -28,6 +29,13 @@ export async function updateUserRole(req, res) {
     return res.status(404).json({
       success: false,
       error: 'User not found.',
+    });
+  }
+
+  if (isSystemAdminAccount(user)) {
+    return res.status(403).json({
+      success: false,
+      error: 'The system admin account cannot be changed.',
     });
   }
 
