@@ -8,17 +8,32 @@ import taskRoutes from './routes/taskRoutes.js';
 import chatRoutes from './routes/chatRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import { protect } from './middleware/authMiddleware.js';
+import { createCorsOriginHandler } from './utils/allowedOrigins.js';
 
 const app = express();
 
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    origin: createCorsOriginHandler(),
+    credentials: true,
   })
 );
 app.use(helmet());
 app.use(express.json());
 app.use('/uploads', express.static(path.resolve('uploads')));
+
+app.get('/', (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: 'TTC Rubengera backend is live.',
+    docs: {
+      health: '/api/health',
+      auth: '/api/auth',
+      announcements: '/api/announcements',
+      tasks: '/api/tasks',
+    },
+  });
+});
 
 app.get('/api/health', (req, res) => {
   res.status(200).json({
@@ -42,7 +57,7 @@ app.get('/api/me', protect, (req, res) => {
 app.use((req, res) => {
   res.status(404).json({
     success: false,
-    error: 'Route not found.',
+    error: `Route not found: ${req.method} ${req.originalUrl}`,
   });
 });
 

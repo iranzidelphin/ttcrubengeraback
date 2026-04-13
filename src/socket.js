@@ -2,11 +2,20 @@ import { Server } from 'socket.io';
 import jwt from 'jsonwebtoken';
 import { User } from './models/User.js';
 import { extractBearerToken } from './middleware/authMiddleware.js';
+import { isOriginAllowed } from './utils/allowedOrigins.js';
 
 export function createSocketServer(server) {
   const io = new Server(server, {
     cors: {
-      origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+      origin: (origin, callback) => {
+        if (isOriginAllowed(origin)) {
+          callback(null, true);
+          return;
+        }
+
+        callback(new Error(`Origin ${origin} is not allowed by Socket.IO CORS.`));
+      },
+      credentials: true,
     },
   });
 
