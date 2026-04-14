@@ -1,15 +1,22 @@
 import webpush from 'web-push';
 import PushSubscription from '../models/PushSubscription.js';
 
-const VAPID_PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY;
-const VAPID_PUBLIC_KEY = process.env.VAPID_PUBLIC_KEY;
+const VAPID_PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY || '';
+const VAPID_PUBLIC_KEY = process.env.VAPID_PUBLIC_KEY || '';
 const VAPID_SUBJECT = process.env.VAPID_SUBJECT || 'mailto:admin@ttcrubengera.edu.rw';
 
+let pushConfigured = false;
+
 if (VAPID_PRIVATE_KEY && VAPID_PUBLIC_KEY) {
-  webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
-  console.log('✅ Push notifications configured');
+  try {
+    webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
+    pushConfigured = true;
+    console.log('✅ Push notifications configured');
+  } catch (err) {
+    console.log('⚠️ Push setup error:', err.message);
+  }
 } else {
-  console.log('⚠️ Push notifications not configured - missing VAPID keys');
+  console.log('⚠️ Push not configured - missing VAPID keys');
 }
 
 export async function subscribeToPush(req, res) {
