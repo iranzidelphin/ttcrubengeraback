@@ -7,6 +7,7 @@ import announcementRoutes from './routes/announcementRoutes.js';
 import taskRoutes from './routes/taskRoutes.js';
 import chatRoutes from './routes/chatRoutes.js';
 import userRoutes from './routes/userRoutes.js';
+import pushRoutes from './routes/pushRoutes.js';
 import { protect } from './middleware/authMiddleware.js';
 import { createCorsOriginHandler } from './utils/allowedOrigins.js';
 
@@ -47,6 +48,7 @@ app.use('/api/announcements', announcementRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/push', pushRoutes);
 app.get('/api/me', protect, (req, res) => {
   res.status(200).json({
     success: true,
