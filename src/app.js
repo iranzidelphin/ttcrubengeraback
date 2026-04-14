@@ -4,6 +4,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import authRoutes from './routes/authRoutes.js';
 import announcementRoutes from './routes/announcementRoutes.js';
+import applicationRoutes from './routes/applicationRoutes.js';
 import taskRoutes from './routes/taskRoutes.js';
 import chatRoutes from './routes/chatRoutes.js';
 import userRoutes from './routes/userRoutes.js';
@@ -37,6 +38,7 @@ app.get('/api/health', (req, res) => {
 });
 
 app.use('/api/auth', authRoutes);
+app.use('/api/applications', applicationRoutes);
 app.use('/api/announcements', announcementRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/chat', chatRoutes);
