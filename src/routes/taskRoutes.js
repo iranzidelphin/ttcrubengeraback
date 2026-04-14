@@ -2,6 +2,7 @@ import { Router } from 'express';
 import {
   addTaskComment,
   createTask,
+  deleteTask,
   listAdminCommentFeed,
   listTaskComments,
   listTasks,
@@ -13,9 +14,10 @@ const router = Router();
 
 router.use(protect);
 router.get('/comments/feed', authorizeRoles('admin'), listAdminCommentFeed);
-router.get('/', authorizeRoles('teacher', 'student'), listTasks);
+router.get('/', authorizeRoles('teacher', 'student', 'admin'), listTasks);
 router.post('/', authorizeRoles('teacher'), uploadTaskFile.single('file'), createTask);
 router.get('/:taskId/comments', authorizeRoles('teacher', 'student'), listTaskComments);
 router.post('/:taskId/comments', authorizeRoles('teacher', 'student'), addTaskComment);
+router.delete('/:taskId', authorizeRoles('teacher', 'admin'), deleteTask);
 
 export default router;

@@ -2,6 +2,7 @@ import { Task } from '../models/Task.js';
 import { TaskComment } from '../models/TaskComment.js';
 import { serializeTask, serializeTaskComment } from '../utils/serializers.js';
 import { SOCKET_EVENTS } from '../utils/socketEvents.js';
+import { deleteTaskWithRelations } from '../utils/taskCleanup.js';
 
 export async function listTasks(req, res) {
   const query = req.user.role === 'teacher' ? { teacher: req.user._id } : {};
@@ -171,6 +172,39 @@ export async function addTaskComment(req, res) {
     res.status(500).json({
       success: false,
       error: 'Could not save comment.',
+    });
+  }
+}
+
+export async function deleteTask(req, res) {
+  try {
+    const task = await Task.findById(req.params.taskId);
+
+    if (!task) {
+      return res.status(404).json({
+        success: false,
+        error: 'Task not found.',
+      });
+    }
+
+    if (req.user.role === 'teacher' && task.teacher.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        error: 'You cannot delete this task.',
+      });
+    }
+
+    await deleteTaskWithRelations(task);
+
+    res.status(200).json({
+      success: true,
+      taskId: req.params.taskId,
+    });
+  } catch (error) {
+    console.error('Delete task error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Could not delete task.',
     });
   }
 }
