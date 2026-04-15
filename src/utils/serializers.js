@@ -63,3 +63,16 @@ export function serializeChatMessage(message) {
     recipient: message.recipient ? serializeUser(message.recipient) : null,
   };
 }
+
+export function serializeGalleryPhoto(photo) {
+  return {
+    id: photo._id.toString(),
+    title: photo.title,
+    description: photo.description,
+    imageName: photo.imageName,
+    imageUrl: photo.imageUrl,
+    imageMimeType: photo.imageMimeType,
+    createdAt: photo.createdAt,
+    createdBy: photo.createdBy ? serializeUser(photo.createdBy) : null,
+  };
+}
